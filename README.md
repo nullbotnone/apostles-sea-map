@@ -137,3 +137,11 @@ kilometres across — so a few gazetteer sites still land in what the grid calls
 open water; `verify` reports the count. Provincial borders and ancient place
 names are educational approximations, and the route lines show the order of
 travel, not surveyed tracks.
+
+## Licence
+
+[Apache License 2.0](LICENSE), copyright 2026 Jie Li. Use it, change it, ship it
+commercially — keep the notice and say what you changed. No warranty. The
+terrain and bathymetry come from GMRT and the place data from the gazetteers
+named above; those carry their own terms, so check them before redistributing a
+built map.
