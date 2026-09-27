@@ -32,7 +32,8 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--gold-bright); o
   background: linear-gradient(180deg, rgba(4, 12, 14, .93), rgba(4, 12, 14, .28));
 }
 .brand { display: flex; align-items: center; gap: 14px; width: max-content; }
-.brand-mark { color: var(--gold-bright); font-size: 27px; }
+.brand-mark { flex: none; color: var(--gold-bright); font-size: 27px; transition: transform .25s ease, color .25s ease; }
+.brand-mark:hover { color: var(--ink); transform: rotate(6deg) scale(1.08); }
 .brand b { display: block; font-family: Georgia, "Songti SC", serif; font-size: 18px; letter-spacing: .17em; }
 .brand small { display: block; margin-top: 3px; color: #7f8986; font-size: 8px; letter-spacing: .25em; text-transform: uppercase; }
 .era { display: flex; align-items: center; gap: 9px; color: #a6aaa1; font-size: 11px; letter-spacing: .18em; }
@@ -218,6 +219,11 @@ footer a { justify-self: end; }
 
 @media (max-width: 540px) {
   .topbar { height: 75px; padding: 0 20px; }
+  /* English titles are long: let the name truncate so the language switch stays on screen. */
+  .topbar { grid-template-columns: minmax(0, 1fr) auto; gap: 12px; }
+  .brand { width: auto; min-width: 0; gap: 10px; }
+  .brand a { min-width: 0; }
+  .brand b { overflow: hidden; font-size: 15px; letter-spacing: .06em; text-overflow: ellipsis; white-space: nowrap; }
   .about-button { padding: 8px 11px; }
   .brand small { display: none; }
   .hero { min-height: 760px; padding: 112px 25px 70px; align-items: flex-start; }

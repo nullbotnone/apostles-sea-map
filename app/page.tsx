@@ -26,6 +26,26 @@ const JOURNEY_THEME: Record<JourneyKey, ThemeFilter> = {
 
 type Lang = 'hans' | 'hant' | 'en';
 const LANGS: [Lang, string][] = [['hans', '简'], ['hant', '繁'], ['en', 'EN']];
+// slashai.app pages share the visitor language under the slashai.lang key
+// (zh, tw or en, JSON-encoded). The older per-site script key is still read
+// so returning visitors keep their choice.
+const SHARED_LANG: Record<string, Lang> = { zh: 'hans', tw: 'hant', en: 'en' };
+function initialLang(): Lang {
+  if (typeof window === 'undefined') return 'hans';
+  try {
+    const shared = SHARED_LANG[JSON.parse(localStorage.getItem('slashai.lang') ?? 'null')];
+    if (shared) return shared;
+    const saved = localStorage.getItem('script');
+    if (saved === 'hans' || saved === 'hant' || saved === 'en') return saved;
+  } catch { /* private mode */ }
+  const nav = (navigator.language || 'en').toLowerCase();
+  if (!nav.startsWith('zh')) return 'en';
+  return /hant|tw|hk|mo/.test(nav) ? 'hant' : 'hans';
+}
+function rememberLang(code: Lang) {
+  const shared = Object.keys(SHARED_LANG).find((key) => SHARED_LANG[key] === code);
+  try { localStorage.setItem('slashai.lang', JSON.stringify(shared)); localStorage.setItem('script', code); } catch { /* private mode */ }
+}
 const CONVERT: Record<Lang, ((s: string) => string) | null> = {
   hans: null, hant: toTraditional, en: toEnglish,
 };
@@ -302,10 +322,7 @@ export default function Home() {
    * keyed by place id so moving to another site puts the poster back.
    */
   const [playing, setPlaying] = useState<string | null>(null);
-  const [lang, setLang] = useState<Lang>(() => {
-    const saved = typeof window !== 'undefined' && localStorage.getItem('script');
-    return saved === 'hant' || saved === 'en' ? saved : 'hans';
-  });
+  const [lang, setLang] = useState<Lang>(initialLang);
   const { ref: mapRef, size } = useSize<HTMLDivElement>();
   const zoomAt = useEarthControls(mapRef, view, setView);
 
@@ -499,10 +516,10 @@ export default function Home() {
   return (
     <main className="site-shell">
       <header className="topbar">
-        <a className="brand" href="#top" aria-label="使徒行传之地首页">
-          <span className="brand-mark">✦</span>
-          <span><b>直到地极</b><small>使徒行传 · 互动地形志</small></span>
-        </a>
+        <div className="brand">
+          <a className="brand-mark" href="https://slashai.app/" aria-label="slashai.app" title="slashai.app">✦</a>
+          <a href="#top" aria-label="使徒行传之地首页"><b>直到地极</b><small>使徒行传 · 互动地形志</small></a>
+        </div>
         <div className="era"><span /> 公元 30–62 年</div>
         <nav aria-label="主导航">
           <a href="#map">探索地图</a>
@@ -514,7 +531,7 @@ export default function Home() {
                 key={code}
                 className={lang === code ? 'on' : ''}
                 aria-pressed={lang === code}
-                onClick={() => { setLang(code); localStorage.setItem('script', code); }}
+                onClick={() => { setLang(code); rememberLang(code); }}
               >
                 {label}
               </button>
